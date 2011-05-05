@@ -285,7 +285,7 @@ class ConsoleReporter(Reporter):
         for r in results:
             if (hasattr(r, "user_mean") and
                 hasattr(r, "system_mean") and hasattr(r, "wall_mean")):
-                self.stream.write("{0:<40} {1:>9.4} {2:>9.4} {3:>9.4}\n"
+                self.stream.write("{0:<40} {1: >9.4f} {2: >9.4f} {3: >9.4f}\n"
                                   .format(r.name, r.user_mean,
                                           r.system_mean, r.wall_mean))
         self.stream.write("\n")
