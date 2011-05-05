@@ -28,7 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from setuptools import setup, find_packages
 setup(
     name = "unitbench",
-    version = "0.1",
+    version = "0.1.1",
     py_modules=['unitbench'],
 
     # metadata for upload to PyPI
