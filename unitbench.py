@@ -182,10 +182,14 @@ class Benchmark(object):
                     results.append(self._run_benchmark(method, value))
                 elif arg_count == 1:
                     results.append(self._run_benchmark(method))
-
+            print >> sys.stdout, ""
             reporter.write_results(str(value), results)
 
     def _run_benchmark(self, method, value=None):
+        # show visual indication that tests are running
+        sys.stdout.write('.')
+        sys.stdout.flush()
+
         # warmup the function
         for i in xrange(self.warmup()):
             self.setup()
@@ -211,7 +215,7 @@ class Benchmark(object):
                     method(value)
                 else:
                     method()
- 
+
                 end = get_time()
                 end_user_system = os.times()
 
@@ -224,16 +228,17 @@ class Benchmark(object):
                 raise
 
             self.teardown()
+
         return BenchResult(self._function_name_to_title(
-                    getattr(method, fname)), value, times)
-    
+            getattr(method, fname)), value, times)
+
     def _find_benchmarks(self):
         """Return a suite of all tests cases contained in testCaseClass"""
         def is_bench_method(attrname, prefix="bench"):
             return (attrname.startswith(prefix) and
                     hasattr(getattr(self.__class__, attrname), '__call__'))
         return list(filter(is_bench_method, dir(self.__class__)))
-    
+
     def _function_name_to_title(self, name):
         output = name
         if output.startswith("bench"):
@@ -243,7 +248,7 @@ class Benchmark(object):
         else:
             s1 = re.sub('(.)([A-Z][a-z]+)', r'\1 \2', output)
             return string.capwords(
-                        re.sub('([a-z0-9])([A-Z])', r'\1 \2', s1).strip())
+                re.sub('([a-z0-9])([A-Z])', r'\1 \2', s1).strip())
 
 
 class Reporter(object):
@@ -251,7 +256,7 @@ class Reporter(object):
     This is the base class for benchmark result reporting.  If
     you'd like to write a custom importer this is the class to extend.
     """
-    
+
     def write_titles(self, titles):
         """
         Override this method if you'd like to write out the titles
@@ -262,7 +267,7 @@ class Reporter(object):
         each benchmark.
         """
         pass
-    
+
     def write_results(self, value, results):
         """
         Override this method to output the results of the benchmark
@@ -277,30 +282,31 @@ class ConsoleReporter(Reporter):
 
     def __init__(self, output_stream=sys.stdout):
         self.stream = output_stream
-        
+
     def write_results(self, value, results):
         self.stream.write("Value: {0:<33}{1:>10}{2:>10}{3:>10}\n"
                           .format(value, "user", "sys", "real"))
         self.stream.write("=" * 70 + "\n")
         for r in results:
             if (hasattr(r, "user_mean") and
-                hasattr(r, "system_mean") and hasattr(r, "wall_mean")):
+                hasattr(r, "system_mean") and
+                hasattr(r, "wall_mean")):
                 self.stream.write("{0:<40} {1: >9.4f} {2: >9.4f} {3: >9.4f}\n"
                                   .format(r.name, r.user_mean,
                                           r.system_mean, r.wall_mean))
         self.stream.write("\n")
 
- 
+
 class CsvReporter(Reporter):
-    
+
     def __init__(self, output_stream=sys.stdout, time_type="wall"):
         self.stream = output_stream
         self.time_type = time_type
-        
+
     def write_titles(self, titles):
         self.stream.write("Values," + ",".join(titles))
         self.stream.write("\n")
-    
+
     def write_results(self, value, results):
         output = []
         for r in results:
